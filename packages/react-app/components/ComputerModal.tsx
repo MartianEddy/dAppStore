@@ -1,14 +1,15 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { useCelo } from "@celo/react-celo";
-import { useState, useContext, FormEvent, Fragment } from "react";
+import { useState, FormEvent, Fragment } from "react";
 import { ethers } from "ethers";
-import { BigNumber } from "bignumber.js";
-import { CustomWindow } from "@/typings";
 import { useRouter } from "next/navigation";
-import { useMarketPlace } from "@/context/MarketPlaceContext";
+import {
+  ComputerMarketplaceAbi,
+  ComputerMarketplaceContract,
+} from "@/context/constants";
 
 export default function ComputerModal() {
-  const { fetchContract } = useMarketPlace();
+  const { kit, address } = useCelo();
 
   let [isOpen, setIsOpen] = useState(false);
 
@@ -31,21 +32,10 @@ export default function ComputerModal() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // creates a new instance of the Web3Provider
-    const provider = new ethers.providers.Web3Provider(
-      (window as CustomWindow).ethereum
+    const contract = new kit.connection.web3.eth.Contract(
+      ComputerMarketplaceAbi as any,
+      ComputerMarketplaceContract
     );
-    await provider.send("eth_requestAccounts", []);
-
-    // Create a signer using the provider
-    const signer = provider.getSigner();
-
-    // Fetch the contract instance
-    const contract = fetchContract(provider);
-
-    // Connect the signer to the contract
-    const contractWithSigner = contract.connect(signer);
-    const account = await signer.getAddress();
 
     //Define the transaction parameters
     const params = [
@@ -54,12 +44,12 @@ export default function ComputerModal() {
       specs,
       location,
       ethers.utils.parseEther(price),
-     
     ];
 
     try {
-      const tx = await contractWithSigner.writeProduct(...params);
-      await tx.wait();
+      const tx = await contract.methods
+        .writeProduct(...params)
+        .send({ from: address });
       setTitle("");
       setImageUrl("");
       setLocation("");

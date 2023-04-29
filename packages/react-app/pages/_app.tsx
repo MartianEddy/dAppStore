@@ -1,9 +1,7 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { CeloProvider, Alfajores } from '@celo/react-celo';
-import '@celo/react-celo/lib/styles.css';
-
-
+import { CeloProvider, Alfajores } from "@celo/react-celo";
+import "@celo/react-celo/lib/styles.css";
 
 import Layout from "../components/Layout";
 import { ShoppingCartProvider } from "@/context/ShoppingCartContext";
@@ -23,13 +21,13 @@ function App({ Component, pageProps }: AppProps) {
         providersOptions: { searchable: true },
       }}
     >
-      <MarketPlaceProvider>
-        <ShoppingCartProvider>
+      <ShoppingCartProvider>
+        <MarketPlaceProvider>
           <Layout>
             <Component {...pageProps} />
           </Layout>
-        </ShoppingCartProvider>
-      </MarketPlaceProvider>
+        </MarketPlaceProvider>
+      </ShoppingCartProvider>
     </CeloProvider>
   );
 }
